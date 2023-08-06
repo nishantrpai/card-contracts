@@ -1,31 +1,38 @@
-// Specifies the version of Solidity, using semantic versioning.
-// Learn more: https://solidity.readthedocs.io/en/v0.5.10/layout-of-source-files.html#pragma
-pragma solidity >=0.7.3;
+pragma solidity ^0.8.4;
 
-// Defines a contract named `HelloWorld`.
-// A contract is a collection of functions and data (its state). Once deployed, a contract resides at a specific address on the Ethereum blockchain. Learn more: https://solidity.readthedocs.io/en/v0.5.10/structure-of-a-contract.html
-contract HelloWorld {
+import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 
-   //Emitted when update function is called
-   //Smart contract events are a way for your contract to communicate that something happened on the blockchain to your app front-end, which can be 'listening' for certain events and take action when they happen.
-   event UpdatedMessages(string oldStr, string newStr);
+struct Card {
+  uint256 id;
+  string message;
+  mapping(address => bool) signed;
+  string data;
+}
 
-   // Declares a state variable `message` of type `string`.
-   // State variables are variables whose values are permanently stored in contract storage. The keyword `public` makes variables accessible from outside a contract and creates a function that other contracts or clients can call to access the value.
-   string public message;
+contract HelloWorld is ERC1155 {
 
-   // Similar to many class-based object-oriented languages, a constructor is a special function that is only executed upon contract creation.
-   // Constructors are used to initialize the contract's data. Learn more:https://solidity.readthedocs.io/en/v0.5.10/contracts.html#constructors
-   constructor(string memory initMessage) {
+    // CARDS
+    Card[] private _cards;
+    
+    constructor() ERC1155("") {
+    }
 
-      // Accepts a string argument `initMessage` and sets the value into the contract's `message` storage variable).
-      message = initMessage;
-   }
+    // MINT CARD TO ADDRESS
+    function mint(address account, string memory message) public {
+        string memory data = "This is a test data";
+        _cards.push(Card(_cards.length, message, data));
+        _mint(account, _cards.length, 1, abi.encodePacked(data));
+    }
 
-   // A public function that accepts a string argument and updates the `message` storage variable.
-   function update(string memory newMessage) public {
-      string memory oldMsg = message;
-      message = newMessage;
-      emit UpdatedMessages(oldMsg, newMessage);
-   }
+    // SIGN CARD
+    function sign(uint256 id, string memory name) public {
+        require(id < _cards.length, "Card does not exist");
+        require(!_cards[id][msg.sender], "Card already signed");
+        _cards[id].message = string(abi.encodePacked(_cards[id].message, " - ", name));
+        _cards[id][msg.sender] = true;
+    }
+
+    function uri(uint256 id) public view override returns (string memory) {
+        return _cards[id].data;
+    }
 }
