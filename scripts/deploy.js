@@ -1,8 +1,8 @@
 async function main() {
-  const HelloWorld = await ethers.getContractFactory("HelloWorld");
+  const PostOffice = await ethers.getContractFactory("PostOffice");
 
   // Start deployment, returning a promise that resolves to a contract object
-  const hello_world = await HelloWorld.deploy();
+  const hello_world = await PostOffice.deploy();
   console.log("Contract deployed to address:", hello_world.address);
 }
 
