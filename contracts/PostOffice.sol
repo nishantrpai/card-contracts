@@ -1,46 +1,49 @@
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/utils/Base64.sol";
+import "./WriteSVG.sol";
 
 struct Card {
     uint256 id;
     string message;
+    uint256 timestamp;
+    string stamp;
     string[] signatures;
 }
 
-contract PostOffice is ERC1155 {
+contract PostOffice is ERC1155, WriteSVG {
     // CARDS
     Card[] private _cards;
+    string private _currentStamp;
     mapping(uint256 => mapping(address => bool)) private _signedStatus;
 
     constructor() ERC1155("") {}
 
     // MINT CARD TO ADDRESS
-    function mint(address account, string memory message, string memory sign) public {
+    function mint(address account, string memory message, string memory signature) public returns (bool) {
         // check regex of sign should be a svg data uri
-        require(bytes(sign).length > 0, "Sign is empty");
+        require(bytes(signature).length > 0, "Sign is empty");
         string memory data = string(abi.encodePacked("Hello ", message));
-        _cards.push(Card(_cards.length, message, 102, data));
+        string[] memory signatures = new string[](1);
+        signatures[0] = signature;
+        _cards.push(Card(_cards.length, message, block.timestamp, _currentStamp, signatures));
         _mint(account, _cards.length, 1, abi.encodePacked(data));
+        return true;
     }
 
     // SIGN CARD
-    function sign(uint256 id, string memory name) public returns (bool) {
-        bytes memory byteName = bytes(name);
+    function sign(uint256 id, string memory signature) public returns (bool) {
+        bytes memory byteName = bytes(signature);
         require(id < _cards.length, "Card does not exist");
         require(!_signedStatus[id][msg.sender], "Card already signed");
         require(!(byteName.length <= 0), "No signature");
-        require(
-            !(byteName.length >= 10),
-            "Signature must be 10 or less characters"
-        );
-        require(block.timestamp <= 1660453200, "Jacks birthday is over");
-        require(!hasSpace(name), "Signatures must be without spaces");
 
-        _cards[id].data = string(
-            abi.encodePacked(_cards[id].data, " - ", name)
-        );
+        Card storage card = _cards[id];
+        require(card.timestamp + 1 days > block.timestamp, "Card expired");
+
+        _cards[id].signatures.push(signature);
         _signedStatus[id][msg.sender] = true;
         return true;
     }
@@ -50,21 +53,43 @@ contract PostOffice is ERC1155 {
         return constructCard(id);
     }
 
-    function constructCard(uint256 id) internal view returns (string memory) {
-      string memory present = '';
+    function getCurrentStamp() public view returns (string memory) {
+      return _currentStamp;
+    }
 
+    function constructCard(uint256 id) internal view returns (string memory) {
+      string memory postcard = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="800">';
+      
       // SETUP THE BG
+      postcard = string(abi.encodePacked(postcard, '<rect xmlns="http://www.w3.org/2000/svg" x="0" y="0" width="100%" height="100%" fill="#000" style="stroke:#222;stroke-width:3" />'));
+
+      // SETUP THE DIVIDER
+      postcard = string(abi.encodePacked(postcard, '<g stroke="#222" stroke-width="2"><line x1="400" y1="20" x2="400" y2="480" /></g>'));
+
+      // SETUP THE STAMP
+      // TODO: add stamp to card
+      postcard = string(abi.encodePacked(postcard, '<g style="stroke:#222;stroke-width:2;fill:#000"> <rect x="720" y="20" width="50" height="60" /></g>'));
 
 
       // SETUP THE MESSAGE
+      postcard = string(abi.encodePacked(postcard, '<g transform="translate(20, 20)">'));
+      postcard = string(abi.encodePacked(postcard, write(_cards[id].message, '#fff', 3)));
+      postcard = string(abi.encodePacked(postcard, '</g>'));
+    
+      postcard = string(abi.encodePacked(postcard, '</svg>'));
 
-      
+      postcard = string(abi.encodePacked(
+        'data:image/svg+xml;base64,',
+        Base64.encode(bytes(postcard))
+      ));
+
+      // SETUP THE MESSAGE
 
       bytes memory dataURI = abi.encodePacked(
             '{',
                 '"name":', _cards[id].message, '"',
                 '"description":', _cards[id].message, '"',
-                '"image": "', present, '"'
+                '"image": "', postcard, '"'
             '}'
         );
 
