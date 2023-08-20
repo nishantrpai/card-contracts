@@ -121,16 +121,16 @@ contract WriteSVG {
 		for (uint256 i = 0; i < bytes(text).length; i++) {
       string memory normalized = upperCase(text, i);
 
-      if(keccak256(abi.encodePacked(normalized)) == keccak256(abi.encodePacked("\n"))) {
-        letterPos = 0;
-        cy += 10;
-        continue;
-      }
+      // if(keccak256(abi.encodePacked(normalized)) == keccak256(abi.encodePacked("\n"))) {
+      //   letterPos = 0;
+      //   cy += 10;
+      //   continue;
+      // }
 
-      if(keccak256(abi.encodePacked(normalized)) == keccak256(abi.encodePacked(" "))) {
-        letterPos += 3;
-        continue;
-      }
+      // if(keccak256(abi.encodePacked(normalized)) == keccak256(abi.encodePacked(" "))) {
+      //   letterPos += 3;
+      //   continue;
+      // }
       
 			string memory path = LETTERS[normalized];
 			
@@ -144,7 +144,7 @@ contract WriteSVG {
 			letterPos = letterPos + width + spacing;
 		}
 		
-		string memory svg = string(abi.encodePacked("<g  transform='scale(", Strings.toString(scale) ,") fill='",color,"' fill-rule='evenodd' clip-rule='evenodd' aria-label='",text,"'>",letters,"</g>"));
+		string memory svg = string(abi.encodePacked("<g  transform='scale(", Strings.toString(scale) ,")' fill='",color,"' fill-rule='evenodd' clip-rule='evenodd' aria-label='",text,"'>",letters,"</g>"));
 		return svg;
   }
 }

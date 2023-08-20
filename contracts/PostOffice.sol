@@ -6,7 +6,6 @@ import "@openzeppelin/contracts/utils/Base64.sol";
 import "./WriteSVG.sol";
 
 struct Card {
-    uint256 id;
     string message;
     uint256 timestamp;
     string stamp;
@@ -28,7 +27,7 @@ contract PostOffice is ERC1155, WriteSVG {
         string memory data = string(abi.encodePacked("Hello ", message));
         string[] memory signatures = new string[](1);
         signatures[0] = signature;
-        _cards.push(Card(_cards.length, message, block.timestamp, _currentStamp, signatures));
+        _cards.push(Card(message, block.timestamp, _currentStamp, signatures));
         _mint(account, _cards.length, 1, abi.encodePacked(data));
         return true;
     }
@@ -57,6 +56,10 @@ contract PostOffice is ERC1155, WriteSVG {
       return _currentStamp;
     }
 
+    function writedebug (uint256 id) public view returns (string memory) {
+      return _cards[id].message;
+    }
+
     function constructCard(uint256 id) internal view returns (string memory) {
       string memory postcard = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="800">';
       
@@ -73,7 +76,7 @@ contract PostOffice is ERC1155, WriteSVG {
 
       // SETUP THE MESSAGE
       postcard = string(abi.encodePacked(postcard, '<g transform="translate(20, 20)">'));
-      postcard = string(abi.encodePacked(postcard, write(_cards[id].message, '#fff', 3)));
+      postcard = string(abi.encodePacked(postcard, write(_cards[id].message, '#fff',3)));
       postcard = string(abi.encodePacked(postcard, '</g>'));
     
       postcard = string(abi.encodePacked(postcard, '</svg>'));
@@ -82,6 +85,8 @@ contract PostOffice is ERC1155, WriteSVG {
         'data:image/svg+xml;base64,',
         Base64.encode(bytes(postcard))
       ));
+
+      return postcard;
 
       // SETUP THE MESSAGE
 

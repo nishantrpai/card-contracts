@@ -1,5 +1,5 @@
 /**
- * How to run locally: npx hardhat run --network hardhat test/postoffice.test.js
+ * Run: npx hardhat run --network hardhat test/postoffice.test.js
  */
 const { expect } = require("chai");
 
@@ -12,6 +12,7 @@ async function main() {
 
   await hello_world.mint('0x2546BcD3c84621e976D8185a91A922aE77ECEc30','test','test signature');
   await hello_world.sign(0, 'test signature new');
+  console.log(await hello_world.writedebug(0));
   console.log(await hello_world.uri(0));
 }
 
