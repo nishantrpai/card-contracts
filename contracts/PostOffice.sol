@@ -9,6 +9,7 @@ struct Card {
     string message;
     uint256 timestamp;
     string stamp;
+    address account;
     string[] signatures;
 }
 
@@ -27,7 +28,7 @@ contract PostOffice is ERC1155, WriteSVG {
         string memory data = string(abi.encodePacked("Hello ", message));
         string[] memory signatures = new string[](1);
         signatures[0] = signature;
-        _cards.push(Card(message, block.timestamp, _currentStamp, signatures));
+        _cards.push(Card(message, block.timestamp, _currentStamp, account, signatures));
         _mint(account, _cards.length, 1, abi.encodePacked(data));
         return true;
     }
@@ -78,6 +79,12 @@ contract PostOffice is ERC1155, WriteSVG {
       postcard = string(abi.encodePacked(postcard, '<g transform="translate(20, 20)">'));
       postcard = string(abi.encodePacked(postcard, write(_cards[id].message, '#fff',3)));
       postcard = string(abi.encodePacked(postcard, '</g>'));
+
+      // ADD THE ADDRESS
+      postcard = string(abi.encodePacked(postcard, '<g transform="translate(420, 120)">'));
+      postcard = string(abi.encodePacked(postcard, write(string(abi.encodePacked('TO: ', Strings.toHexString(uint160(_cards[id].account), 20))), '#666',2)));
+      postcard = string(abi.encodePacked(postcard, '</g>'));
+
     
       postcard = string(abi.encodePacked(postcard, '</svg>'));
 
@@ -87,6 +94,7 @@ contract PostOffice is ERC1155, WriteSVG {
       ));
 
       // SETUP THE MESSAGE
+      return postcard;
 
       bytes memory dataURI = abi.encodePacked(
             '{',
