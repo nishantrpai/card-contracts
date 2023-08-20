@@ -91,6 +91,14 @@ contract PostOffice is ERC1155, WriteSVG {
       postcard = string(abi.encodePacked(postcard, write('SIGNATURES:', '#666',2)));
       postcard = string(abi.encodePacked(postcard, '</g>'));
 
+      postcard = string(abi.encodePacked(postcard, '<g transform="translate(420, 220) scale(2)" fill-rule="evenodd" clip-rule="evenodd" fill="#666" style="display:flex;flex-wrap:wrap;gap:2px;">'));
+      for (uint256 i = 0; i < _cards[id].signatures.length; i++) {
+        postcard = string(abi.encodePacked(postcard, _cards[id].signatures[i]));
+      }
+      postcard = string(abi.encodePacked(postcard, '</g>'));
+
+
+      // END THE SVG
       postcard = string(abi.encodePacked(postcard, '</svg>'));
 
       postcard = string(abi.encodePacked(
