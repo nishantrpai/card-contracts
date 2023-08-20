@@ -77,7 +77,7 @@ contract PostOffice is ERC1155, WriteSVG {
 
       // SETUP THE STAMP
       // TODO: add stamp to card
-      postcard = string(abi.encodePacked(postcard, '<g style="stroke:#222;stroke-width:2;fill:#000"> <rect x="720" y="20" width="50" height="60" /></g>'));
+      postcard = string(abi.encodePacked(postcard, '<g style="stroke:#222;stroke-width:2;fill:#000"> <rect x="720" y="20" width="50" height="50" />','<image x="720" y="20" width="50" href="',_currentStamp,'" />','</g>'));
 
 
       // SETUP THE MESSAGE
