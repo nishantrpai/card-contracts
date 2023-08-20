@@ -86,8 +86,6 @@ contract PostOffice is ERC1155, WriteSVG {
         Base64.encode(bytes(postcard))
       ));
 
-      return postcard;
-
       // SETUP THE MESSAGE
 
       bytes memory dataURI = abi.encodePacked(
