@@ -112,6 +112,22 @@ contract WriteSVG {
 		return 	string(firstCharByte);
 	}
 
+  function signSVG(string[] memory signatures) public pure returns (string memory) {
+    uint256 cx = 0;
+    uint256 cy = 0;
+    string memory signimgs = '';
+    for(uint256 i = 0; i < signatures.length; i++) {
+      // draw signatures in a grid
+      if(i % 10 == 0) {
+        cx = 0;
+        cy += 10;
+      }
+      signimgs = string(abi.encodePacked(signimgs, '<image transform="translate(',Strings.toString(cx),',',Strings.toString(cy),') scale(1)" href="',signatures[i],'" />'));
+      cx += 100;
+    }
+    return signimgs;
+  }
+
   function write(string memory text, string memory color, uint256 scale) view public returns (string memory) {
 		uint256 letterPos = 0;
     string memory letters = "";
