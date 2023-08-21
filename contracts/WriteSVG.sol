@@ -114,13 +114,13 @@ contract WriteSVG {
 
   function signSVG(string[] memory signatures) public pure returns (string memory) {
     uint256 cx = 0;
-    uint256 cy = 0;
+    uint256 cy = 10;
     string memory signimgs = '';
     for(uint256 i = 0; i < signatures.length; i++) {
       // draw signatures in a grid
-      if(i % 10 == 0) {
+      if(i % 5 == 0 && i != 0) {
         cx = 0;
-        cy += 10;
+        cy += 100;
       }
       signimgs = string(abi.encodePacked(signimgs, '<image transform="translate(',Strings.toString(cx),',',Strings.toString(cy),') scale(1)" href="',signatures[i],'" />'));
       cx += 100;
