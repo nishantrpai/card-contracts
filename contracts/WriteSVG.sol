@@ -118,7 +118,7 @@ contract WriteSVG {
     string memory signimgs = '';
     for(uint256 i = 0; i < signatures.length; i++) {
       // draw signatures in a grid
-      if(i % 5 == 0 && i != 0) {
+      if(i % 7 == 0 && i != 0) {
         cx = 0;
         cy += 100;
       }
