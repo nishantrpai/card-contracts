@@ -23,7 +23,11 @@ contract PostOffice is ERC1155, WriteSVG {
 
     // MINT CARD TO ADDRESS
     function mint(address account, string memory message, string memory signature) public returns (bool) {
-        // check regex of sign should be a svg data uri
+        // address can't be empty
+        require(account != address(0), "Account is empty");
+        // message can't be empty
+        require(bytes(message).length > 0, "Message is empty");
+        // signature can't be empty
         require(bytes(signature).length > 0, "Sign is empty");
         string memory data = string(abi.encodePacked("Hello ", message));
         string[] memory signatures = new string[](1);
